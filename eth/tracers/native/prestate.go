@@ -191,8 +191,8 @@ func (t *prestateTracer) CaptureTxEnd(restGas uint64) {
 		}
 		if !bytes.Equal(newCode, t.pre[addr].Code) {
 			modified = true
-			//postAccount.Code = newCode
-			postAccount.Code = nil
+			postAccount.Code = newCode
+			//postAccount.Code = nil
 		}
 
 		for key, val := range state.Storage {
