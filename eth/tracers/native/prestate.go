@@ -283,7 +283,7 @@ func (t *prestateTracer) lookupAccount(addr common.Address) {
 	t.pre[addr] = &account{
 		Balance: t.env.StateDB.GetBalance(addr),
 		Nonce:   t.env.StateDB.GetNonce(addr),
-		Code:    t.env.StateDB.GetCode(addr),
+		//Code:    t.env.StateDB.GetCode(addr),
 		Storage: make(map[common.Hash]common.Hash),
 	}
 }
