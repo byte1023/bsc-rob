@@ -203,7 +203,7 @@ func (c *callback) call(ctx context.Context, method string, args []reflect.Value
 	}()
 	// Run the callback.
 	results := c.fn.Call(fullargs)
-	fmt.Printf("mysign", fullargs, "\n")
+	fmt.Printf("mysign %v \n", fullargs)
 	if len(results) == 0 {
 		return nil, nil
 	}
