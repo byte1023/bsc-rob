@@ -17,6 +17,7 @@
 package native
 
 import (
+	"bytes"
 	"encoding/json"
 	"math/big"
 	"sync/atomic"
@@ -197,7 +198,7 @@ func (t *prestateTracer) CaptureTxEnd(restGas uint64) {
 		postAccount := &account{Storage: make(map[common.Hash]common.Hash)}
 		newBalance := t.env.StateDB.GetBalance(addr)
 		newNonce := t.env.StateDB.GetNonce(addr)
-		//newCode := t.env.StateDB.GetCode(addr)
+		newCode := t.env.StateDB.GetCode(addr)
 
 		if newBalance.Cmp(t.pre[addr].Balance) != 0 {
 			modified = true
@@ -207,12 +208,11 @@ func (t *prestateTracer) CaptureTxEnd(restGas uint64) {
 			modified = true
 			postAccount.Nonce = newNonce
 		}
-		/*
-			if !bytes.Equal(newCode, t.pre[addr].Code) {
-				modified = true
-				postAccount.Code = newCode
-			}
-		*/
+
+		if !bytes.Equal(newCode, t.pre[addr].Code) {
+			modified = true
+			postAccount.Code = newCode
+		}
 
 		for key, val := range state.Storage {
 			// don't include the empty slot
@@ -254,6 +254,9 @@ func (t *prestateTracer) GetResult() (json.RawMessage, error) {
 	var res []byte
 	var err error
 	if t.config.DiffMode {
+		for adr, _ := range t.pre {
+			t.pre[adr].Code = nil
+		}
 		res, err = json.Marshal(struct {
 			Post state `json:"post"`
 			Pre  state `json:"pre"`
@@ -283,7 +286,7 @@ func (t *prestateTracer) lookupAccount(addr common.Address) {
 	t.pre[addr] = &account{
 		Balance: t.env.StateDB.GetBalance(addr),
 		Nonce:   t.env.StateDB.GetNonce(addr),
-		//Code:    t.env.StateDB.GetCode(addr),
+		Code:    t.env.StateDB.GetCode(addr),
 		Storage: make(map[common.Hash]common.Hash),
 	}
 }
