@@ -191,7 +191,6 @@ func (c *callback) call(ctx context.Context, method string, args []reflect.Value
 		fullargs = append(fullargs, reflect.ValueOf(ctx))
 	}
 	fullargs = append(fullargs, args...)
-	fmt.Printf("mysign", args)
 	// Catch panic while running the callback.
 	defer func() {
 		if err := recover(); err != nil {
@@ -204,6 +203,7 @@ func (c *callback) call(ctx context.Context, method string, args []reflect.Value
 	}()
 	// Run the callback.
 	results := c.fn.Call(fullargs)
+	fmt.Printf("mysign", fullargs, "\n")
 	if len(results) == 0 {
 		return nil, nil
 	}
