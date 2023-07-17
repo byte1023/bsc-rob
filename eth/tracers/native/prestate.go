@@ -42,7 +42,7 @@ type account struct {
 	Balance *big.Int                    `json:"balance,omitempty"`
 	Code    []byte                      `json:"code,omitempty"`
 	Nonce   uint64                      `json:"nonce,omitempty"`
-	Storage map[common.Hash]common.Hash `json:"stateDiff,omitempty"`
+	Storage map[common.Hash]common.Hash `json:"storage,omitempty"`
 }
 
 func (a *account) exists() bool {
@@ -166,7 +166,6 @@ func (t *prestateTracer) CaptureState(pc uint64, op vm.OpCode, gas, cost uint64,
 	case stackLen >= 4 && op == vm.CREATE2:
 		offset := stackData[stackLen-2]
 		size := stackData[stackLen-3]
-		//init, err := tracers.GetMemoryCopyPadded(scope.Memory, int64(offset.Uint64()), int64(size.Uint64()))
 		init := scope.Memory.GetCopy(int64(offset.Uint64()), int64(size.Uint64()))
 		if err != nil {
 			log.Warn("failed to copy CREATE2 input", "err", err, "tracer", "prestateTracer", "offset", offset, "size", size)
@@ -208,7 +207,6 @@ func (t *prestateTracer) CaptureTxEnd(restGas uint64) {
 			modified = true
 			postAccount.Nonce = newNonce
 		}
-
 		if !bytes.Equal(newCode, t.pre[addr].Code) {
 			modified = true
 			postAccount.Code = newCode
@@ -216,11 +214,9 @@ func (t *prestateTracer) CaptureTxEnd(restGas uint64) {
 
 		for key, val := range state.Storage {
 			// don't include the empty slot
-			/*
-				if val == (common.Hash{}) {
-					delete(t.pre[addr].Storage, key)
-				}
-			*/
+			if val == (common.Hash{}) {
+				delete(t.pre[addr].Storage, key)
+			}
 
 			newVal := t.env.StateDB.GetState(addr, key)
 			if val == newVal {
@@ -256,9 +252,6 @@ func (t *prestateTracer) GetResult() (json.RawMessage, error) {
 	var res []byte
 	var err error
 	if t.config.DiffMode {
-		for adr, _ := range t.pre {
-			t.pre[adr].Code = nil
-		}
 		res, err = json.Marshal(struct {
 			Post state `json:"post"`
 			Pre  state `json:"pre"`
