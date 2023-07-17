@@ -20,6 +20,7 @@ package tracers
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
@@ -69,4 +70,26 @@ func New(code string, ctx *Context, cfg json.RawMessage) (Tracer, error) {
 		}
 	}
 	return nil, errors.New("tracer not found")
+}
+
+const (
+	memoryPadLimit = 1024 * 1024
+)
+
+func GetMemoryCopyPadded(m *vm.Memory, offset, size int64) ([]byte, error) {
+	if offset < 0 || size < 0 {
+		return nil, errors.New("offset or size must not be negative")
+	}
+	if int(offset+size) < m.Len() { // slice fully inside memory
+		return m.GetCopy(offset, size), nil
+	}
+	paddingNeeded := int(offset+size) - m.Len()
+	if paddingNeeded > memoryPadLimit {
+		return nil, fmt.Errorf("reached limit for padding memory slice: %d", paddingNeeded)
+	}
+	cpy := make([]byte, size)
+	if overlap := int64(m.Len()) - offset; overlap > 0 {
+		copy(cpy, m.GetPtr(offset, overlap))
+	}
+	return cpy, nil
 }
