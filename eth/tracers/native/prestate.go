@@ -190,11 +190,9 @@ func (t *prestateTracer) CaptureTxEnd(restGas uint64) {
 
 	for addr, state := range t.pre {
 		// The deleted account's state is pruned from `post` but kept in `pre`
-		/*
-			if _, ok := t.deleted[addr]; ok {
-				continue
-			}
-		*/
+		if _, ok := t.deleted[addr]; ok {
+			continue
+		}
 		modified := false
 		postAccount := &account{Storage: make(map[common.Hash]common.Hash)}
 		newBalance := t.env.StateDB.GetBalance(addr)
