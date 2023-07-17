@@ -42,7 +42,7 @@ type account struct {
 	Balance *big.Int                    `json:"balance,omitempty"`
 	Code    []byte                      `json:"code,omitempty"`
 	Nonce   uint64                      `json:"nonce,omitempty"`
-	Storage map[common.Hash]common.Hash `json:"storage,omitempty"`
+	Storage map[common.Hash]common.Hash `json:"stateDiff,omitempty"`
 }
 
 func (a *account) exists() bool {
