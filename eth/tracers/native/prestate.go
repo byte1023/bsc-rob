@@ -254,8 +254,8 @@ func (t *prestateTracer) GetResult() (json.RawMessage, error) {
 	var res []byte
 	var err error
 	if t.config.DiffMode {
-		for adr, _ := range t.post {
-			t.post[adr].Code = nil
+		for adr, _ := range t.pre {
+			t.pre[adr].Code = nil
 		}
 		res, err = json.Marshal(struct {
 			Post state `json:"post"`
