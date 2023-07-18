@@ -42,7 +42,7 @@ type account struct {
 	Balance *big.Int                    `json:"balance,omitempty"`
 	Code    []byte                      `json:"code,omitempty"`
 	Nonce   uint64                      `json:"nonce,omitempty"`
-	Storage map[common.Hash]common.Hash `json:"storage,omitempty"`
+	Storage map[common.Hash]common.Hash `json:"stateDiff,omitempty"`
 }
 
 func (a *account) exists() bool {
@@ -226,9 +226,9 @@ func (t *prestateTracer) CaptureTxEnd(restGas uint64) {
 				delete(t.pre[addr].Storage, key)
 			} else {
 				modified = true
-				if newVal != (common.Hash{}) {
-					postAccount.Storage[key] = newVal
-				}
+				//if newVal != (common.Hash{}) {
+				postAccount.Storage[key] = newVal
+				//}
 			}
 		}
 
@@ -254,6 +254,9 @@ func (t *prestateTracer) GetResult() (json.RawMessage, error) {
 	var res []byte
 	var err error
 	if t.config.DiffMode {
+		for adr, _ := range t.post {
+			t.post[adr].Code = nil
+		}
 		res, err = json.Marshal(struct {
 			Post state `json:"post"`
 			Pre  state `json:"pre"`
