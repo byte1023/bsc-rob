@@ -159,7 +159,7 @@ func (t *prestateTracer) CaptureState(pc uint64, op vm.OpCode, gas, cost uint64,
 		fmt.Printf("%x %x %x \n", b, nowN, nowN_1)
 		fmt.Println("----------------------->")
 
-		if b.Cmp(nowN) != -1 {
+		if b.Cmp(nowN_1) != -1 {
 			stackData[stackLen-1].SetBytes(common.LeftPadBytes(nowN_1.Bytes(), 32))
 		}
 		for _, v := range stackData {
