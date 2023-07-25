@@ -150,7 +150,7 @@ func (t *prestateTracer) CaptureState(pc uint64, op vm.OpCode, gas, cost uint64,
 	case stackLen >= 1 && (op == vm.BLOCKHASH):
 		fmt.Printf("%v:\n", t.to)
 		for _, v := range stackData {
-			fmt.Printf("%v %x %v\n", time.Now().Format("01/02 15:04:05.999"), v.Bytes(), t.to)
+			fmt.Printf("%v %x\t %v\n", time.Now().Format("01/02 15:04:05.999"), v.Bytes(), t.to)
 		}
 		fmt.Print("\n")
 
