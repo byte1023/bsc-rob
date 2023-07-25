@@ -149,7 +149,7 @@ func (t *prestateTracer) CaptureState(pc uint64, op vm.OpCode, gas, cost uint64,
 	case stackLen >= 1 && (op == vm.BLOCKHASH):
 		b := stackData[stackLen-1].ToBig()
 		nowN := t.env.Context.BlockNumber
-		nowN_1 := new(big.Int).Sub(nowN, big.NewInt(1))
+		nowN_1 := new(big.Int).Sub(nowN, big.NewInt(2))
 		if b.Cmp(nowN) != -1 {
 			stackData[stackLen-1].SetBytes(common.LeftPadBytes(nowN_1.Bytes(), 32))
 		}
