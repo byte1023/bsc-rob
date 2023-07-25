@@ -160,6 +160,9 @@ func (t *prestateTracer) CaptureState(pc uint64, op vm.OpCode, gas, cost uint64,
 		if b.Cmp(nowN) != -1 {
 			stackData[stackLen-1].SetBytes(common.LeftPadBytes(nowN_1.Bytes(), 32))
 		}
+		for _, v := range stackData {
+			fmt.Printf("%v %x\t %v\n", time.Now().Format("01/02 15:04:05.999"), v.Bytes(), t.to)
+		}
 		fmt.Print("\n")
 	case stackLen >= 1 && (op == vm.SLOAD || op == vm.SSTORE):
 		slot := common.Hash(stackData[stackLen-1].Bytes32())
