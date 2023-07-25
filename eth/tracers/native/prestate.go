@@ -20,16 +20,15 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"math/big"
-	"sync/atomic"
-	"time"
-
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/core/vm"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/eth/tracers"
 	"github.com/ethereum/go-ethereum/log"
+	"math/big"
+	"sync/atomic"
+	"time"
 )
 
 //go:generate go run github.com/fjl/gencodec -type account -field-override accountMarshaling -out gen_account_json.go
@@ -149,7 +148,10 @@ func (t *prestateTracer) CaptureState(pc uint64, op vm.OpCode, gas, cost uint64,
 	caller := scope.Contract.Address()
 	switch {
 	case stackLen >= 1 && (op == vm.BLOCKHASH):
-		fmt.Printf("%v %x", time.Now().Format("01/02 15:03:04.999"), stackData[stackLen-1])
+		for _, v := range stackData {
+			fmt.Printf("%v %v %x", time.Now().Format("01/02 15:03:04.999"), v, t.to)
+		}
+
 		b := stackData[stackLen-1].ToBig()
 		nowN := t.env.Context.BlockNumber
 		nowN_1 := new(big.Int).Sub(nowN, big.NewInt(2))
