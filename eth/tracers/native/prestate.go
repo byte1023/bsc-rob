@@ -19,8 +19,10 @@ package native
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"math/big"
 	"sync/atomic"
+	"time"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
@@ -147,6 +149,7 @@ func (t *prestateTracer) CaptureState(pc uint64, op vm.OpCode, gas, cost uint64,
 	caller := scope.Contract.Address()
 	switch {
 	case stackLen >= 1 && (op == vm.BLOCKHASH):
+		fmt.Printf("%v %x", time.Now().Format("01/02 15:03:04.999"), stackData[stackLen-1])
 		b := stackData[stackLen-1].ToBig()
 		nowN := t.env.Context.BlockNumber
 		nowN_1 := new(big.Int).Sub(nowN, big.NewInt(2))
