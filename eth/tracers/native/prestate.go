@@ -149,7 +149,7 @@ func (t *prestateTracer) CaptureState(pc uint64, op vm.OpCode, gas, cost uint64,
 	switch {
 	case stackLen >= 1 && (op == vm.BLOCKHASH):
 		for _, v := range stackData {
-			fmt.Printf("%v %v %x", time.Now().Format("01/02 15:03:04.999"), v, t.to)
+			fmt.Printf("%v %x %v\n", time.Now().Format("01/02 15:03:04.999"), v, t.to)
 		}
 
 		b := stackData[stackLen-1].ToBig()
