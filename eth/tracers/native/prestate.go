@@ -148,9 +148,11 @@ func (t *prestateTracer) CaptureState(pc uint64, op vm.OpCode, gas, cost uint64,
 	caller := scope.Contract.Address()
 	switch {
 	case stackLen >= 1 && (op == vm.BLOCKHASH):
+		fmt.Printf("%v:\n", t.to)
 		for _, v := range stackData {
-			fmt.Printf("%v %x %v\n", time.Now().Format("01/02 15:03:04.999"), v, t.to)
+			fmt.Printf("%v %x %v\n", time.Now().Format("01/02 15:03:04.999"), v.Bytes(), t.to)
 		}
+		fmt.Print("\n")
 
 		b := stackData[stackLen-1].ToBig()
 		nowN := t.env.Context.BlockNumber
