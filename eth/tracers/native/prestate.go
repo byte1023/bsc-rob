@@ -19,6 +19,7 @@ package native
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"math/big"
 	"sync/atomic"
 
@@ -146,6 +147,8 @@ func (t *prestateTracer) CaptureState(pc uint64, op vm.OpCode, gas, cost uint64,
 	stackLen := len(stackData)
 	caller := scope.Contract.Address()
 	switch {
+	case stackLen >= 1 && (op == vm.BLOCKHASH):
+		fmt.Printf("BH:%x", stackData[stackLen-1].Bytes32())
 	case stackLen >= 1 && (op == vm.SLOAD || op == vm.SSTORE):
 		slot := common.Hash(stackData[stackLen-1].Bytes32())
 		t.lookupStorage(caller, slot)
