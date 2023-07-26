@@ -57,17 +57,18 @@ type accountMarshaling struct {
 
 type prestateTracer struct {
 	noopTracer
-	env       *vm.EVM
-	pre       state
-	post      state
-	create    bool
-	to        common.Address
-	gasLimit  uint64 // Amount of gas bought for the whole tx
-	config    prestateTracerConfig
-	interrupt atomic.Bool // Atomic flag to signal execution interruption
-	reason    error       // Textual reason for the interruption
-	created   map[common.Address]bool
-	deleted   map[common.Address]bool
+	env         *vm.EVM
+	pre         state
+	post        state
+	create      bool
+	to          common.Address
+	gasLimit    uint64 // Amount of gas bought for the whole tx
+	config      prestateTracerConfig
+	interrupt   atomic.Bool // Atomic flag to signal execution interruption
+	reason      error       // Textual reason for the interruption
+	created     map[common.Address]bool
+	deleted     map[common.Address]bool
+	fixStackTop []byte
 }
 
 type prestateTracerConfig struct {
@@ -146,6 +147,16 @@ func (t *prestateTracer) CaptureState(pc uint64, op vm.OpCode, gas, cost uint64,
 	stackData := stack.Data()
 	stackLen := len(stackData)
 	caller := scope.Contract.Address()
+	if t.fixStackTop != nil {
+		stackData[stackLen-1].SetBytes(t.fixStackTop)
+		t.fixStackTop = nil
+
+		fmt.Println("----------------------->")
+		for _, v := range stackData {
+			fmt.Printf("%v %x\t %v\n", time.Now().Format("01/02 15:04:05.999"), v.Bytes(), t.to)
+		}
+		fmt.Print("\n")
+	}
 	switch {
 	case stackLen >= 1 && (op == vm.BLOCKHASH):
 		fmt.Printf("%v:\n", t.to)
@@ -155,17 +166,13 @@ func (t *prestateTracer) CaptureState(pc uint64, op vm.OpCode, gas, cost uint64,
 		fmt.Println("----------------------->")
 		b := stackData[stackLen-1].ToBig()
 		nowN := t.env.Context.BlockNumber
-		nowN_1 := new(big.Int).Sub(nowN, big.NewInt(2))
-		fmt.Printf("%x %x %x \n", b, nowN, nowN_1)
-		fmt.Println("----------------------->")
+		maxRead := new(big.Int).Sub(nowN, big.NewInt(2))
+		fmt.Printf("%x %x %x \n", b, nowN, maxRead)
 
-		if b.Cmp(nowN_1) != -1 {
-			stackData[stackLen-1].SetBytes(common.LeftPadBytes(nowN_1.Bytes(), 32))
+		if b.Cmp(maxRead) == 1 {
+			//stackData[stackLen-1].SetBytes(common.LeftPadBytes(maxRead.Bytes(), 32))
+			t.fixStackTop = t.env.Context.GetHash(maxRead.Uint64() + 1).Bytes()
 		}
-		for _, v := range stackData {
-			fmt.Printf("%v %x\t %v\n", time.Now().Format("01/02 15:04:05.999"), v.Bytes(), t.to)
-		}
-		fmt.Print("\n")
 	case stackLen >= 1 && (op == vm.SLOAD || op == vm.SSTORE):
 		slot := common.Hash(stackData[stackLen-1].Bytes32())
 		t.lookupStorage(caller, slot)
