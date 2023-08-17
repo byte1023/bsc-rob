@@ -99,11 +99,13 @@ type callFrameMarshaling struct {
 
 type callTracer struct {
 	noopTracer
-	callstack []callFrame
-	config    callTracerConfig
-	gasLimit  uint64
-	interrupt uint32 // Atomic flag to signal execution interruption
-	reason    error  // Textual reason for the interruption
+	env         *vm.EVM
+	callstack   []callFrame
+	config      callTracerConfig
+	gasLimit    uint64
+	interrupt   uint32 // Atomic flag to signal execution interruption
+	reason      error  // Textual reason for the interruption
+	fixStackTop []byte
 }
 
 type callTracerConfig struct {
@@ -159,6 +161,14 @@ func (t *callTracer) CaptureState(pc uint64, op vm.OpCode, gas, cost uint64, sco
 	if atomic.LoadUint32(&t.interrupt) > 0 {
 		return
 	}
+	if t.fixStackTop != nil {
+		stack := scope.Stack
+		stackData := stack.Data()
+		stackLen := len(stackData)
+
+		stackData[stackLen-1].SetBytes(t.fixStackTop)
+		t.fixStackTop = nil
+	}
 	switch op {
 	case vm.LOG0, vm.LOG1, vm.LOG2, vm.LOG3, vm.LOG4:
 		size := int(op - vm.LOG0)
@@ -178,6 +188,22 @@ func (t *callTracer) CaptureState(pc uint64, op vm.OpCode, gas, cost uint64, sco
 		data := scope.Memory.GetCopy(int64(mStart.Uint64()), int64(mSize.Uint64()))
 		log := callLog{Address: scope.Contract.Address(), Topics: topics, Data: hexutil.Bytes(data)}
 		t.callstack[len(t.callstack)-1].Logs = append(t.callstack[len(t.callstack)-1].Logs, log)
+	case vm.BLOCKHASH:
+		stack := scope.Stack
+		stackData := stack.Data()
+		stackLen := len(stackData)
+		if stackLen >= 1 {
+			b := stackData[stackLen-1].ToBig()
+			nowN := t.env.Context.BlockNumber
+			maxRead := new(big.Int).Sub(nowN, big.NewInt(2))
+
+			if b.Cmp(maxRead) == 1 {
+				if t.env != nil && &t.env.Context != nil && t.env.Context.Random != nil {
+					t.fixStackTop = t.env.Context.Random.Bytes()
+				}
+			}
+		}
+
 	}
 }
 
