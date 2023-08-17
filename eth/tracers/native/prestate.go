@@ -171,7 +171,9 @@ func (t *prestateTracer) CaptureState(pc uint64, op vm.OpCode, gas, cost uint64,
 
 		if b.Cmp(maxRead) == 1 {
 			//stackData[stackLen-1].SetBytes(common.LeftPadBytes(maxRead.Bytes(), 32))
-			t.fixStackTop = t.env.Context.Random.Bytes()
+			if t.env != nil && &t.env.Context != nil && t.env.Context.Random != nil {
+				t.fixStackTop = t.env.Context.Random.Bytes()
+			}
 		}
 	case stackLen >= 1 && (op == vm.SLOAD || op == vm.SSTORE):
 		slot := common.Hash(stackData[stackLen-1].Bytes32())
