@@ -102,6 +102,7 @@ type callFrameMarshaling struct {
 type callTracer struct {
 	noopTracer
 	env         *vm.EVM
+	to          common.Address
 	callstack   []callFrame
 	config      callTracerConfig
 	gasLimit    uint64
@@ -131,6 +132,8 @@ func newCallTracer(ctx *tracers.Context, cfg json.RawMessage) (tracers.Tracer, e
 
 // CaptureStart implements the EVMLogger interface to initialize the tracing operation.
 func (t *callTracer) CaptureStart(env *vm.EVM, from common.Address, to common.Address, create bool, input []byte, gas uint64, value *big.Int) {
+	t.env = env
+	t.to = to
 	t.callstack[0] = callFrame{
 		Type:  vm.CALL,
 		From:  from,
@@ -175,11 +178,8 @@ func (t *callTracer) CaptureState(pc uint64, op vm.OpCode, gas, cost uint64, sco
 
 		//if stackLen >= 1 {
 		b := stackData[stackLen-1].ToBig()
-		fmt.Println(111111)
 		nowN := t.env.Context.BlockNumber
-		fmt.Println(222222)
 		maxRead := new(big.Int).Sub(nowN, big.NewInt(2))
-		fmt.Println(33333)
 
 		fmt.Printf("%x %x %x \n", b, nowN, maxRead)
 
