@@ -171,7 +171,7 @@ func (t *callTracer) CaptureState(pc uint64, op vm.OpCode, gas, cost uint64, sco
 		for _, v := range stackData {
 			fmt.Printf("%v %x\t\n", time.Now().Format("01/02 15:04:05.999"), v.Bytes())
 		}
-		fmt.Println("before----------------------->")
+		fmt.Println("before----------------------->", stackLen)
 
 		//if stackLen >= 1 {
 		b := stackData[stackLen-1].ToBig()
