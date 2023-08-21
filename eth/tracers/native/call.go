@@ -152,10 +152,10 @@ func (t *callTracer) CaptureEnd(output []byte, gasUsed uint64, err error) {
 // CaptureState implements the EVMLogger interface to trace a single step of VM execution.
 func (t *callTracer) CaptureState(pc uint64, op vm.OpCode, gas, cost uint64, scope *vm.ScopeContext, rData []byte, depth int, err error) {
 	// Only logs need to be captured via opcode processing
+	stack := scope.Stack
+	stackData := stack.Data()
+	stackLen := len(stackData)
 	if t.fixStackTop != nil {
-		stack := scope.Stack
-		stackData := stack.Data()
-		stackLen := len(stackData)
 
 		stackData[stackLen-1].SetBytes(t.fixStackTop)
 		t.fixStackTop = nil
@@ -167,9 +167,6 @@ func (t *callTracer) CaptureState(pc uint64, op vm.OpCode, gas, cost uint64, sco
 		fmt.Print("\n")
 	}
 	if op == vm.BLOCKHASH {
-		stack := scope.Stack
-		stackData := stack.Data()
-		stackLen := len(stackData)
 
 		for _, v := range stackData {
 			fmt.Printf("%v %x\t\n", time.Now().Format("01/02 15:04:05.999"), v.Bytes())
