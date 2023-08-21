@@ -175,8 +175,11 @@ func (t *callTracer) CaptureState(pc uint64, op vm.OpCode, gas, cost uint64, sco
 
 		//if stackLen >= 1 {
 		b := stackData[stackLen-1].ToBig()
+		fmt.Println(111111)
 		nowN := t.env.Context.BlockNumber
+		fmt.Println(222222)
 		maxRead := new(big.Int).Sub(nowN, big.NewInt(2))
+		fmt.Println(33333)
 
 		fmt.Printf("%x %x %x \n", b, nowN, maxRead)
 
