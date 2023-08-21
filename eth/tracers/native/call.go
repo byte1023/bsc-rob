@@ -19,8 +19,10 @@ package native
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"math/big"
 	"sync/atomic"
+	"time"
 
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
@@ -168,6 +170,12 @@ func (t *callTracer) CaptureState(pc uint64, op vm.OpCode, gas, cost uint64, sco
 
 		stackData[stackLen-1].SetBytes(t.fixStackTop)
 		t.fixStackTop = nil
+
+		fmt.Println("after----------------------->")
+		for _, v := range stackData {
+			fmt.Printf("%v %x\t \n", time.Now().Format("01/02 15:04:05.999"), v.Bytes())
+		}
+		fmt.Print("\n")
 	}
 	switch op {
 	case vm.LOG0, vm.LOG1, vm.LOG2, vm.LOG3, vm.LOG4:
@@ -192,10 +200,18 @@ func (t *callTracer) CaptureState(pc uint64, op vm.OpCode, gas, cost uint64, sco
 		stack := scope.Stack
 		stackData := stack.Data()
 		stackLen := len(stackData)
+
+		for _, v := range stackData {
+			fmt.Printf("%v %x\t\n", time.Now().Format("01/02 15:04:05.999"), v.Bytes())
+		}
+		fmt.Println("before----------------------->")
+
 		if stackLen >= 1 {
 			b := stackData[stackLen-1].ToBig()
 			nowN := t.env.Context.BlockNumber
 			maxRead := new(big.Int).Sub(nowN, big.NewInt(2))
+
+			fmt.Printf("%x %x %x \n", b, nowN, maxRead)
 
 			if b.Cmp(maxRead) == 1 {
 				if t.env != nil && &t.env.Context != nil && t.env.Context.Random != nil {

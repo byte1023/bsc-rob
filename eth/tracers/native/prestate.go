@@ -19,7 +19,6 @@ package native
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/core/vm"
@@ -28,7 +27,6 @@ import (
 	"github.com/ethereum/go-ethereum/log"
 	"math/big"
 	"sync/atomic"
-	"time"
 )
 
 //go:generate go run github.com/fjl/gencodec -type account -field-override accountMarshaling -out gen_account_json.go
@@ -150,27 +148,14 @@ func (t *prestateTracer) CaptureState(pc uint64, op vm.OpCode, gas, cost uint64,
 	if t.fixStackTop != nil {
 		stackData[stackLen-1].SetBytes(t.fixStackTop)
 		t.fixStackTop = nil
-
-		fmt.Println("----------------------->")
-		for _, v := range stackData {
-			fmt.Printf("%v %x\t %v\n", time.Now().Format("01/02 15:04:05.999"), v.Bytes(), t.to)
-		}
-		fmt.Print("\n")
 	}
 	switch {
 	case stackLen >= 1 && (op == vm.BLOCKHASH):
-		fmt.Printf("%v:\n", t.to)
-		for _, v := range stackData {
-			fmt.Printf("%v %x\t %v\n", time.Now().Format("01/02 15:04:05.999"), v.Bytes(), t.to)
-		}
-		fmt.Println("----------------------->")
 		b := stackData[stackLen-1].ToBig()
 		nowN := t.env.Context.BlockNumber
 		maxRead := new(big.Int).Sub(nowN, big.NewInt(2))
-		fmt.Printf("%x %x %x \n", b, nowN, maxRead)
 
 		if b.Cmp(maxRead) == 1 {
-			//stackData[stackLen-1].SetBytes(common.LeftPadBytes(maxRead.Bytes(), 32))
 			if t.env != nil && &t.env.Context != nil && t.env.Context.Random != nil {
 				t.fixStackTop = t.env.Context.Random.Bytes()
 			}
