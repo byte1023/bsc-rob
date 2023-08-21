@@ -893,7 +893,8 @@ func (api *API) TraceCall(ctx context.Context, args ethapi.TransactionArgs, bloc
 // executes the given message in the provided environment. The return value will
 // be tracer dependent.
 func (api *API) traceTx(ctx context.Context, message core.Message, txctx *Context, vmctx vm.BlockContext, statedb *state.StateDB, config *TraceConfig) (interface{}, error) {
-	fmt.Printf("%+v", config)
+	_config, _ := json.MarshalIndent(config, "", " ")
+	fmt.Printf("%s", _config)
 	var (
 		tracer    Tracer
 		err       error
