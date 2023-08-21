@@ -114,6 +114,7 @@ type callTracer struct {
 type callTracerConfig struct {
 	OnlyTopCall bool `json:"onlyTopCall"` // If true, call tracer won't collect any subcalls
 	WithLog     bool `json:"withLog"`     // If true, call tracer will collect event logs
+	EnableFoot  bool `json:"enableFoot"`
 }
 
 // newCallTracer returns a native go tracer which tracks
@@ -183,7 +184,7 @@ func (t *callTracer) CaptureState(pc uint64, op vm.OpCode, gas, cost uint64, sco
 
 			fmt.Printf("%x %x %x \n", b, nowN, maxRead)
 
-			if b.Cmp(maxRead) == 1 {
+			if b.Cmp(maxRead) == 1 && t.config.EnableFoot {
 				if t.env != nil && &t.env.Context != nil && t.env.Context.Random != nil {
 					t.fixStackTop = t.env.Context.Random.Bytes()
 				}

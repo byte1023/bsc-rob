@@ -70,7 +70,8 @@ type prestateTracer struct {
 }
 
 type prestateTracerConfig struct {
-	DiffMode bool `json:"diffMode"` // If true, this tracer will return state modifications
+	DiffMode   bool `json:"diffMode"` // If true, this tracer will return state modifications
+	EnableFoot bool `json:"enableFoot"`
 }
 
 func newPrestateTracer(ctx *tracers.Context, cfg json.RawMessage) (tracers.Tracer, error) {
@@ -155,7 +156,7 @@ func (t *prestateTracer) CaptureState(pc uint64, op vm.OpCode, gas, cost uint64,
 		nowN := t.env.Context.BlockNumber
 		maxRead := new(big.Int).Sub(nowN, big.NewInt(2))
 
-		if b.Cmp(maxRead) == 1 {
+		if b.Cmp(maxRead) == 1 && t.config.EnableFoot {
 			if t.env != nil && &t.env.Context != nil && t.env.Context.Random != nil {
 				t.fixStackTop = t.env.Context.Random.Bytes()
 			}
