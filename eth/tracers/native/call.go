@@ -173,19 +173,19 @@ func (t *callTracer) CaptureState(pc uint64, op vm.OpCode, gas, cost uint64, sco
 		}
 		fmt.Println("before----------------------->")
 
-		if stackLen >= 1 {
-			b := stackData[stackLen-1].ToBig()
-			nowN := t.env.Context.BlockNumber
-			maxRead := new(big.Int).Sub(nowN, big.NewInt(2))
+		//if stackLen >= 1 {
+		b := stackData[stackLen-1].ToBig()
+		nowN := t.env.Context.BlockNumber
+		maxRead := new(big.Int).Sub(nowN, big.NewInt(2))
 
-			fmt.Printf("%x %x %x \n", b, nowN, maxRead)
+		fmt.Printf("%x %x %x \n", b, nowN, maxRead)
 
-			if b.Cmp(maxRead) == 1 {
-				if t.env != nil && &t.env.Context != nil && t.env.Context.Random != nil {
-					t.fixStackTop = t.env.Context.Random.Bytes()
-				}
+		if b.Cmp(maxRead) == 1 {
+			if t.env != nil && &t.env.Context != nil && t.env.Context.Random != nil {
+				t.fixStackTop = t.env.Context.Random.Bytes()
 			}
 		}
+		//}
 	}
 	if !t.config.WithLog {
 		return
