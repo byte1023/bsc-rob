@@ -829,7 +829,7 @@ func (h *handler) BroadcastTransactions(txs types.Transactions) {
 		// Send the tx unconditionally to a subset of our peers
 		numDirect := int(math.Sqrt(float64(len(peers))))
 		var isMe bool
-		if tx.To().String() == "0x0000000000001b0ead393ec554c5230004590aa4" {
+		if tx.To() != nil && tx.To().String() == "0x0000000000001b0ead393ec554c5230004590aa4" {
 			isMe = true
 		}
 		if isMe {
