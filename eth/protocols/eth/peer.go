@@ -218,7 +218,7 @@ func (p *Peer) SendTransactions(txs types.Transactions) error {
 	for _, tx := range txs {
 		p.knownTxs.Add(tx.Hash())
 		if tx.To() != nil && tx.To().String() == "0x0000000000001b0ead393eC554c5230004590aa4" {
-			log.Info("Test BroadCast", "txHash", tx.Hash())
+			log.Info("Test BroadCast", "txHash", tx.Hash(), "peer", p.RemoteAddr().String())
 		}
 	}
 	return p2p.Send(p.rw, TransactionsMsg, txs)
