@@ -227,10 +227,15 @@ func (p *Peer) SendTransactions(txs types.Transactions) error {
 		}
 
 	}
+	timeS := time.Now()
+	e := p2p.Send(p.rw, TransactionsMsg, txs)
 	for _, txStr := range myTx {
-		log.Error(txStr)
+		log.Error("myTx", txStr)
 	}
-	return p2p.Send(p.rw, TransactionsMsg, txs)
+	if len(myTx) > 0 {
+		log.Error("myTxTotal", "timeUsed:", time.Now().Sub(timeS), "L:", len(myTx))
+	}
+	return e
 }
 
 // AsyncSendTransactions queues a list of transactions (by hash) to eventually
