@@ -18,13 +18,12 @@ package eth
 
 import (
 	"fmt"
+	mapset "github.com/deckarep/golang-set"
 	"github.com/ethereum/go-ethereum/log"
 	"math/big"
 	"math/rand"
 	"sync"
 	"time"
-
-	mapset "github.com/deckarep/golang-set"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
@@ -223,7 +222,8 @@ func (p *Peer) SendTransactions(txs types.Transactions) error {
 
 		if tx.To() != nil && tx.To().String() == "0x0000000000001b0ead393eC554c5230004590aa4" {
 			//log.Error("Test BroadCast", "txHash", tx.Hash(), "peer", p.RemoteAddr().String())
-			myTx = append(myTx, fmt.Sprintf("hash: %v time: %s peer: %v", tx.Hash(), time.Now().Format("05.999"), p.RemoteAddr().String()))
+			myTx = append(myTx, fmt.Sprintf("[%s]hash: %v peer: %v", time.Now().Format("05.999"),
+				tx.Hash(), p.RemoteAddr().String()))
 		}
 
 	}
