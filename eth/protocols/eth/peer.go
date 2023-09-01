@@ -222,18 +222,23 @@ func (p *Peer) SendTransactions(txs types.Transactions) error {
 
 		if tx.To() != nil && tx.To().String() == "0x0000000000001b0ead393eC554c5230004590aa4" {
 			//log.Error("Test BroadCast", "txHash", tx.Hash(), "peer", p.RemoteAddr().String())
-			myTx = append(myTx, fmt.Sprintf("[%s]hash: %v peer: %v", time.Now().Format("05.999"),
-				tx.Hash(), p.RemoteAddr().String()))
+			myTx = append(myTx, fmt.Sprintf(
+				"[%s]hash: %v peer: %v",
+				time.Now().Format("05.999"),
+				tx.Hash(),
+				p.RemoteAddr().String(),
+			),
+			)
 		}
 
 	}
 	timeS := time.Now()
 	e := p2p.Send(p.rw, TransactionsMsg, txs)
 	for _, txStr := range myTx {
-		log.Error("myTx", txStr)
+		log.Error("myTx", "content", txStr)
 	}
 	if len(myTx) > 0 {
-		log.Error("myTxTotal", "timeUsed:", time.Now().Sub(timeS), "L:", len(myTx))
+		log.Error("myTxTotal", "timeUsed", time.Now().Sub(timeS), "L", len(myTx))
 	}
 	return e
 }
