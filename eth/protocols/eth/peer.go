@@ -17,10 +17,12 @@
 package eth
 
 import (
+	"fmt"
 	"github.com/ethereum/go-ethereum/log"
 	"math/big"
 	"math/rand"
 	"sync"
+	"time"
 
 	mapset "github.com/deckarep/golang-set"
 
@@ -215,12 +217,18 @@ func (p *Peer) markTransaction(hash common.Hash) {
 // tests that directly send messages without having to do the asyn queueing.
 func (p *Peer) SendTransactions(txs types.Transactions) error {
 	// Mark all the transactions as known, but ensure we don't overflow our limits
+	myTx := make([]string, 0)
 	for _, tx := range txs {
 		p.knownTxs.Add(tx.Hash())
 
 		if tx.To() != nil && tx.To().String() == "0x0000000000001b0ead393eC554c5230004590aa4" {
-			log.Error("Test BroadCast", "txHash", tx.Hash(), "peer", p.RemoteAddr().String())
+			//log.Error("Test BroadCast", "txHash", tx.Hash(), "peer", p.RemoteAddr().String())
+			myTx = append(myTx, fmt.Sprintf("hash: %v time: %s peer: %v", tx.Hash(), time.Now().Format("05.999"), p.RemoteAddr().String()))
 		}
+
+	}
+	for _, txStr := range myTx {
+		log.Error(txStr)
 	}
 	return p2p.Send(p.rw, TransactionsMsg, txs)
 }
