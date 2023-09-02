@@ -221,6 +221,8 @@ func (t *prestateTracer) CaptureTxEnd(restGas uint64) {
 		if newNonce != t.pre[addr].Nonce {
 			modified = true
 			postAccount.Nonce = newNonce
+		} else {
+			postAccount.Nonce = t.pre[addr].Nonce
 		}
 		if !bytes.Equal(newCode, t.pre[addr].Code) {
 			modified = true
